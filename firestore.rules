@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == "REPLACE_WITH_YOUR_ADMIN_AUTH_UID";
+    }
+    match /locationRecords/{recordId} {
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.consent == true
+        && request.resource.data.latitude is number
+        && request.resource.data.latitude >= -90
+        && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number
+        && request.resource.data.longitude >= -180
+        && request.resource.data.longitude <= 180
+        && request.resource.data.accuracy is number
+        && request.resource.data.keys().hasOnly(['latitude','longitude','accuracy','consent','consentTextVersion','source','ownerUid','createdAt','userAgent']);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+  }
+}
