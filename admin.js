@@ -2,7 +2,7 @@ import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {getFirestore,collection,getDocs,query,orderBy,limit,deleteDoc,doc} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {firebaseConfig} from "./firebase-config.js";
-const ADMIN_UID="REPLACE_WITH_YOUR_ADMIN_AUTH_UID"; // Replace with your Firebase Auth user's UID.
+const ADMIN_UID="kr19sMLc3rRKbGVCVbTJjEJ9R3R2"; // Replace with your Firebase Auth user's UID.
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);let rows=[];
 $("login-form").addEventListener("submit",async e=>{e.preventDefault();$("login-status").textContent="Signing in…";try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);$("login-status").textContent="Signed in.";}catch(err){$("login-status").textContent=`Sign-in failed: ${err.code||"check setup"}`;}});
 onAuthStateChanged(auth,user=>{const ok=!!user&&user.uid===ADMIN_UID;$("login-panel").classList.toggle("hidden",ok);$("records-panel").classList.toggle("hidden",!ok);if(ok)load();});
