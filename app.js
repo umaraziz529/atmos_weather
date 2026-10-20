@@ -12,3 +12,12 @@ $("search-form").addEventListener("submit",async e=>{e.preventDefault();const q=
 $("locate-btn").addEventListener("click",()=>{if(!navigator.geolocation)return status("Location is not supported by this browser.");$("save-location-check").checked=false;$("consent-dialog").showModal();});
 $("consent-form").addEventListener("submit",e=>{if(e.submitter?.id!=="continue-location")return;e.preventDefault();$("consent-dialog").close();status("Requesting browser location…");navigator.geolocation.getCurrentPosition(async pos=>{const {latitude,longitude,accuracy}=pos.coords,p={latitude,longitude,name:"Your location"};try{await weather(p);if(!$("save-location-check").checked)return status("Weather loaded. Coordinates were not saved.");status("Saving consented location…");try{if(!auth.currentUser)await signInAnonymously(auth);await addDoc(collection(db,"locationRecords"),{latitude,longitude,accuracy:Math.round(accuracy),consent:true,consentTextVersion:"2026-10-20",source:"browser-geolocation",ownerUid:auth.currentUser.uid,createdAt:serverTimestamp(),userAgent:navigator.userAgent.slice(0,250)});status("Weather loaded and your location was saved with consent.");}catch(err){console.error(err);status(`Weather loaded, but saving failed (${err.code||"backend error"}). Check Firebase setup.`);}}catch(err){status(err.message||"Could not load weather.");}},err=>status(err.code===1?"Location permission denied. Search for a city instead.":"Could not get location."),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});});
 weather({latitude:33.6844,longitude:73.0479,name:"Islamabad",region:"Islamabad Capital Territory",country:"Pakistan"}).catch(()=>status("Search for a city to get started."));
+
+const agreeCheckbox = document.getElementById("save-location-check");
+const continueButton = document.getElementById("continue-location");
+
+continueButton.disabled = !agreeCheckbox.checked;
+
+agreeCheckbox.addEventListener("change", () => {
+  continueButton.disabled = !agreeCheckbox.checked;
+});
